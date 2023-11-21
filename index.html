@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicin Skema</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+    /* Custom check animation */
+    .checkmark {
+      display: none;
+      width: 25px;
+      height: 25px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #10B981; /* Tailwind green-500 */
+      color: white;
+      border-radius: 50%;
+      justify-content: center;
+      align-items: center;
+    }
+    .form-checkbox:checked + .checkmark {
+      display: flex;
+    }
+    /* Shadows and borders for a cleaner look */
+    .schedule-container {
+      border: 1px solid #e5e7eb; /* Tailwind gray-300 */
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    /* Smooth transition for checkmark */
+    .form-checkbox:checked + .checkmark {
+      -webkit-transition: background-color 0.3s;
+      transition: background-color 0.3s;
+    }
+   </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 font-sans">
+  <audio id="click-sound" src="click-sound.wav"></audio> <!-- Replace with your actual sound file -->
+<audio id="trumpet-sound" src="trumpet-sound.wav"></audio> <!-- Replace with your actual sound file -->
+    <audio id="error-sound" src="error-sound.mp3"></audio> <!-- Replace with your actual sound file -->
+
+
+  <div class="max-w-lg mx-auto bg-white p-6 rounded-xl shadow-lg relative">
+    <img src="logo-placeholder.png" alt="Company Logo" class="h-12 mx-auto mb-4"> <!-- Replace with your actual logo -->
+    <h1 class="text-2xl font-bold text-blue-600 text-center mb-4">Medicin Skema</h1>
+    <p class="text-center text-sm mb-2">8. time 4,5 ml Penicillin x3</p>
+    <p class="text-center text-sm mb-6">Kl. 8 - Kl. 16 - Kl. 24</p>
+    <div class="schedule-container">
+      <p id="countdown" class="text-center text-sm p-2 text-gray-700 bg-gray-200"></p>
+      <div id="schedule" class="p-4">
+        <!-- Schedule will be populated by JavaScript -->
+      </div>
+    </div>
+    <button id="done-button" class="mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 focus:outline-none transition duration-300">
+            Færdig med medicin
+        </button>
+  </div>
+
+<canvas id="confetti-holder" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/confetti-js/dist/index.min.js"></script>
+    <script>
+    const days = ['Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag', 'Mandag'];
+    const totalBoxes = days.length * 3; // Assuming 3 checkboxes per day as per your image
+
+    function updateCountdown() {
+      const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked').length;
+      document.getElementById('countdown').textContent = `Antal krydsede bokse: ${checkedBoxes} af ${totalBoxes}`;
+    }
+
+    function loadSchedule() {
+      days.forEach(day => {
+        const dayContainer = document.createElement('div');
+        dayContainer.className = 'flex flex-col mb-4';
+        for (let i = 1; i <= 3; i++) { // Assuming 3 checkboxes per day
+          const isChecked = localStorage.getItem(`${day}-${i}`) === 'true';
+          const checkbox = document.createElement('label');
+          checkbox.className = 'flex items-center';
+          checkbox.innerHTML = `
+            <input type="checkbox" class="form-checkbox h-5 w-5" ${isChecked ? 'checked' : ''} id="${day}-${i}">
+            <span class="ml-2">${day} ${i}</span>
+          `;
+          dayContainer.appendChild(checkbox);
+        }
+        document.getElementById('schedule').appendChild(dayContainer);
+      });
+
+      // Attach change event listener to checkboxes
+      document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          const id = e.target.id;
+          localStorage.setItem(id, e.target.checked);
+          updateCountdown();
+          });
+      });
+      updateCountdown();
+    }
+
+    // Function to play sound
+        function playSound(soundId) {
+            var sound = document.getElementById(soundId);
+            sound.play();
+        }
+
+        // Confetti button functionality
+        document.getElementById('done-button').addEventListener('click', function() {
+            const totalChecked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            if (totalChecked === totalBoxes) {
+                playSound('trumpet-sound');
+                var confettiSettings = { target: 'confetti-holder' };
+                var confetti = new ConfettiGenerator(confettiSettings);
+                confetti.render();
+                setTimeout(() => { confetti.clear(); }, 3000); // Clear confetti after 3 seconds
+            } else {
+                playSound('error-sound');
+            }
+        });
+
+// Function to update the next pill time
+        function updateNextPillTime() {
+            const timeInputs = document.querySelectorAll('input[type="time"]');
+            let latestTime = '';
+            let latestTimestamp = 0;
+            timeInputs.forEach(input => {
+                const timeValue = input.value;
+                if (timeValue) {
+                    const timestamp = new Date('1970-01-01T' + timeValue + 'Z').getTime();
+                    if (timestamp > latestTimestamp) {
+                        latestTime = timeValue;
+                        latestTimestamp = timestamp;
+                    }
+                }
+            });
+
+            // Assuming 8 hours interval for the next pill
+            if (latestTime) {
+                const nextPillTimestamp = new Date(latestTimestamp + 8 * 60 * 60 * 1000);
+                const nextPillTime = nextPillTimestamp.toISOString().substring(11, 16);
+                document.getElementById('next-pill-time').textContent = `Næste pille: ${nextPillTime}`;
+            }
+        }
+
+        function loadSchedule() {
+            days.forEach(day => {
+                const dayContainer = document.createElement('div');
+                dayContainer.className = 'flex flex-col mb-4';
+                for (let i = 1; i <= 3; i++) {
+                    const checkboxId = `${day}-${i}`;
+                    const isChecked = localStorage.getItem(checkboxId) === 'true';
+                    const inputTimeId = `time-${checkboxId}`;
+                    const inputTimeValue = localStorage.getItem(inputTimeId) || '';
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'flex items-center';
+                    checkbox.innerHTML = `
+                        <input type="checkbox" class="form-checkbox h-5 w-5" ${isChecked ? 'checked' : ''} id="${checkboxId}">
+                        <label for="${checkboxId}" class="ml-2">${day} ${i}</label>
+                        <input type="time" id="${inputTimeId}" value="${inputTimeValue}" class="ml-2">
+                    `;
+                    dayContainer.appendChild(checkbox);
+                    document.getElementById('schedule').appendChild(dayContainer);
+
+                    document.getElementById(checkboxId).addEventListener('change', (e) => {
+                        localStorage.setItem(checkboxId, e.target.checked);
+                        playSound('click-sound');
+                        updateCountdown();
+                    });
+
+                    document.getElementById(inputTimeId).addEventListener('change', (e) => {
+                        localStorage.setItem(inputTimeId, e.target.value);
+                        // Calculate and display the next dose time (not implemented here)
+                    });
+                }
+            });
+// Add listener for time inputs to update next pill time
+            document.querySelectorAll('input[type="time"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    updateNextPillTime();
+                });
+            });
+        }
+            updateCountdown();
+        
+
+        window.onload = function() {
+            loadSchedule();
+            updateNextPillTime(); // Calculate next pill time on page load
+        };
+  </script>
+ <p id="next-pill-time" class="text-center mt-4"></p> <!-- Display next pill time -->
+</body>
+</html>
