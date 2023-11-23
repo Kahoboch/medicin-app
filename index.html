@@ -53,16 +53,24 @@
 
     <img src="logo-placeholder.png" alt="Company Logo" class="h-12 mx-auto mb-4"> <!-- Replace with your actual logo -->
     <h1 class="text-2xl font-bold text-blue-600 text-center mb-4">Medicin Skema</h1>
+      <form id="medication-form" class="text-center mb-4">
+    <input type="number" id="frequency-input" placeholder="Frekvens (timer)" class="text-center" required>
+    <input type="number" id="duration-input" placeholder="Varighed (dage)" class="text-center" required>
+    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Indstil</button>
+</form>
     <p class="text-center text-sm mb-2">8. time 4,5 ml Penicillin x3</p>
     <p class="text-center text-sm mb-6">Kl. 8 - Kl. 16 - Kl. 24</p>
-      <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-4 overflow-hidden my-4">
-    <div id="progress-bar" class="bg-green-500 h-4 rounded-full" style="width:0%"></div>
+      
 </div>
 
-<div class="relative w-12 h-12 mx-auto my-4"> <!-- Adjust size as needed -->
-    <img id="sick-image" src="sick-person.png" alt="Sick Person" class="absolute top-0 left-0 w-full h-full" style="opacity: 1;">
-    <img id="healthy-image" src="healthy-person.png" alt="Healthy Person" class="absolute top-0 left-0 w-full h-full" style="opacity: 0;">
-</div>
+<div class="text-center">
+    <div id="image-container" class="relative inline-block w-24 h-24"> <!-- Adjust size as needed -->
+        <img id="sick-image" src="sick-person.png" alt="Sick Person" class="absolute top-0 left-0 w-full h-full" style="opacity: 1;">
+        <img id="healthy-image" src="healthy-person.png" alt="Healthy Person" class="absolute top-0 left-0 w-full h-full" style="opacity: 0;">
+    </div>
+    <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-4 overflow-hidden my-4">
+        <div id="progress-bar" class="bg-green-500 h-4 rounded-full" style="width:0%"></div>
+    </div>
     <div class="schedule-container">
       <p id="countdown" class="text-center text-sm p-2 text-gray-700 bg-gray-200"></p>
       <div id="schedule" class="p-4">
