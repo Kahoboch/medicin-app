@@ -38,10 +38,8 @@
       transition: background-color 0.3s;
     }
 
-        #sick-image, #healthy-image {
-        transition: opacity 0.5s ease-in-out;
-        width: 50px; /* Adjust as needed */
-        height: 50px; /* Adjust as needed */
+         #sick-image, #healthy-image {
+        transition: width 0.5s ease-in-out;
     }
    </style>
 </head>
@@ -61,9 +59,9 @@
     <div id="progress-bar" class="bg-green-500 h-4 rounded-full" style="width:0%"></div>
 </div>
 
-<div class="flex justify-between">
-    <img id="sick-image" src="sick-person.png" alt="Sick Person" style="opacity: 1;">
-    <img id="healthy-image" src="healthy-person.png" alt="Healthy Person" style="opacity: 0;">
+<div class="relative w-12 h-12 mx-auto my-4"> <!-- Adjust size as needed -->
+    <img id="sick-image" src="sick-person.png" alt="Sick Person" class="absolute top-0 left-0 w-full h-full">
+    <img id="healthy-image" src="healthy-person.png" alt="Healthy Person" class="absolute top-0 left-0 w-0 h-full overflow-hidden">
 </div>
     <div class="schedule-container">
       <p id="countdown" class="text-center text-sm p-2 text-gray-700 bg-gray-200"></p>
@@ -85,15 +83,11 @@
     function updateCountdown() {
         const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked').length;
         const progressBar = document.getElementById('progress-bar');
-        const sickImage = document.getElementById('sick-image');
         const healthyImage = document.getElementById('healthy-image');
 
         const progressPercentage = (checkedBoxes / totalBoxes) * 100;
         progressBar.style.width = progressPercentage + '%';
-
-        // Update image opacities based on progress
-        sickImage.style.opacity = 1 - progressPercentage / 100;
-        healthyImage.style.opacity = progressPercentage / 100;
+        healthyImage.style.width = progressPercentage + '%'; // Change width of healthy image
 
         document.getElementById('countdown').textContent = `Antal krydsede bokse: ${checkedBoxes} af ${totalBoxes}`;
     }
