@@ -39,7 +39,7 @@
     }
 
          #sick-image, #healthy-image {
-        transition: width 0.5s ease-in-out;
+        transition: opacity 0.5s ease-in-out;
     }
    </style>
 </head>
@@ -60,8 +60,8 @@
 </div>
 
 <div class="relative w-12 h-12 mx-auto my-4"> <!-- Adjust size as needed -->
-    <img id="sick-image" src="sick-person.png" alt="Sick Person" class="absolute top-0 left-0 w-full h-full">
-    <img id="healthy-image" src="healthy-person.png" alt="Healthy Person" class="absolute top-0 left-0 w-0 h-full overflow-hidden">
+    <img id="sick-image" src="sick-person.png" alt="Sick Person" class="absolute top-0 left-0 w-full h-full" style="opacity: 1;">
+    <img id="healthy-image" src="healthy-person.png" alt="Healthy Person" class="absolute top-0 left-0 w-full h-full" style="opacity: 0;">
 </div>
     <div class="schedule-container">
       <p id="countdown" class="text-center text-sm p-2 text-gray-700 bg-gray-200"></p>
@@ -83,11 +83,16 @@
     function updateCountdown() {
         const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked').length;
         const progressBar = document.getElementById('progress-bar');
+        const sickImage = document.getElementById('sick-image');
         const healthyImage = document.getElementById('healthy-image');
 
         const progressPercentage = (checkedBoxes / totalBoxes) * 100;
         progressBar.style.width = progressPercentage + '%';
-        healthyImage.style.width = progressPercentage + '%'; // Change width of healthy image
+
+        // Update image opacities based on progress
+        const opacity = progressPercentage / 100;
+        sickImage.style.opacity = 1 - opacity;
+        healthyImage.style.opacity = opacity;
 
         document.getElementById('countdown').textContent = `Antal krydsede bokse: ${checkedBoxes} af ${totalBoxes}`;
     }
